@@ -1,0 +1,4 @@
+interface:
+  display_name: "ComfyUI Node & Extension Builder"
+  short_description: "Build ComfyUI nodes and extensions"
+  default_prompt: "Use $comfyui-node-extension-builder to design and implement a ComfyUI custom node or frontend extension with current Comfy docs, registry metadata, and workflow templates."
