@@ -19,7 +19,7 @@ Repository = "https://github.com/owner/repo"
 [tool.comfy]
 PublisherId = "owner"
 DisplayName = "My Node Pack"
-requires-comfyui = ">=0.16.0"
+requires-comfyui = ">=0.18.1"
 ```
 
 ## Packaging Rules
@@ -30,6 +30,13 @@ requires-comfyui = ">=0.16.0"
 - Add `requires-comfyui` when compatibility is not broad enough to be implicit.
 - Add `comfyui-frontend-package` constraints when the pack depends on a specific frontend API range.
 - Use `[tool.comfy].includes` when a built frontend artifact such as `dist/` is needed but normally ignored by git.
+
+## Latest-Compatible Versioning Strategy
+
+- Distinguish **compatibility constraints** from **development pins**.
+- Encode compatibility in `requires-comfyui` and, when needed, dependency ranges such as `comfyui-frontend-package>=x,<y`.
+- For CI and local verification, test against the newest known-good ComfyUI manifest pins in core `requirements.txt`.
+- Do not assume frontend source repo version tags are identical to the pip-distributed `comfyui-frontend-package` pin used by core installs.
 
 ## Manager And Registry Behavior
 
@@ -64,9 +71,12 @@ requires-comfyui = ">=0.16.0"
 
 - Use `Comfy-Org/comfy-action` to run workflows in CI across environments.
 - Prefer CI for regression checks before publishing new versions.
+- Add static checks that block deprecated frontend menu monkey-patching patterns.
+- Add static checks for registry-prohibited patterns (`eval`, `exec`, runtime pip-install commands).
 - Use deprecation and migration paths when replacing old nodes instead of silently breaking workflows.
 
 ## Practical Default
 
 - Treat `pyproject.toml` as mandatory for anything intended to be installed by other people.
 - Add compatibility ranges before release work, not after breakage reports.
+- Ship at least one `example_workflows` test case and execute it in CI.
