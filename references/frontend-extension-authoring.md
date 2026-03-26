@@ -6,6 +6,7 @@
 - Put one or more `.js` files in that directory.
 - Register with `app.registerExtension`.
 - Only `.js` files are auto-loaded. Other assets must be fetched from the served extension path at runtime.
+- Do not copy extension scripts into ComfyUI core web directories.
 
 ## Minimum Shape
 
@@ -41,6 +42,7 @@ Prefer documented hooks over prototype hijacking. If there is no official API, p
 
 - Canvas menu: implement `getCanvasMenuItems(canvas)`.
 - Node menu: implement `getNodeMenuItems(node)`.
+- Topbar menu: use `commands` plus `menuCommands`.
 - Settings:
   - provide `settings: [...]`
   - use stable `id` values
@@ -49,6 +51,14 @@ Prefer documented hooks over prototype hijacking. If there is no official API, p
   - provide `commands: [...]`
   - provide `keybindings: [...]`
   - avoid core-reserved combos
+
+## Deprecated Patterns To Block In New Code
+
+- `LGraphCanvas.prototype.getCanvasMenuOptions`
+- `nodeType.prototype.getExtraMenuOptions`
+- broad prototype monkey-patching of app/canvas/node internals for behavior now covered by official hooks
+
+Treat these as migration targets. New code should use `getCanvasMenuItems`, `getNodeMenuItems`, and other documented extension surfaces.
 
 ## Client-Server Interaction
 
@@ -90,3 +100,4 @@ Prefer documented hooks over prototype hijacking. If there is no official API, p
 
 - Start with `beforeRegisterNodeDef`, `nodeCreated`, `setup`, settings, commands, and documented menu APIs.
 - Add custom routes, subgraph logic, or renderer-sensitive behavior only when the feature really requires it.
+- Add a CI check that fails on deprecated menu monkey-patch patterns.

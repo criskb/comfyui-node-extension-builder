@@ -7,7 +7,7 @@ description: Design and implement ComfyUI custom nodes, frontend extensions, hyb
 
 ## Overview
 
-Create and update ComfyUI custom nodes, frontend extensions, hybrid node packs, registry metadata, workflow templates, and migration work. Refresh official sources first, prefer stable APIs by default, and opt into V3 or beta-only features only when the task actually needs them.
+Create and update ComfyUI custom nodes, frontend extensions, hybrid node packs, registry metadata, workflow templates, migration work, and publish-ready project presentation assets. Refresh official sources first, prefer stable APIs by default, and treat legacy patterns as migration targets rather than new defaults.
 
 ## Refresh Official Sources
 
@@ -17,16 +17,17 @@ Create and update ComfyUI custom nodes, frontend extensions, hybrid node packs, 
 
 Read only the references needed for the task:
 - `references/source-map.md`: map task types to the right docs pages and repos.
-- `references/backend-node-authoring.md`: V1 and V3 backend node patterns.
-- `references/frontend-extension-authoring.md`: `WEB_DIRECTORY`, hooks, settings, commands, routes, i18n, docs panels, and subgraphs.
+- `references/backend-node-authoring.md`: V3-first backend authoring plus V1 compatibility patterns.
+- `references/frontend-extension-authoring.md`: `WEB_DIRECTORY`, hooks, settings, commands, routes, i18n, docs panels, and non-legacy menu APIs.
 - `references/distribution-publishing.md`: `pyproject.toml`, registry, Manager, CI/CD, and standards.
 - `references/workflow-assets-and-templates.md`: `example_workflows`, official templates, and blueprints.
-- `references/current-platform-snapshot.md`: March 6, 2026 snapshot of versions, repo heads, and beta notes.
+- `references/readme-and-branding.md`: detailed README structure plus SVG banner guidance for extension repos.
+- `references/current-platform-snapshot.md`: dated snapshot of versions, repo heads, and compatibility signals.
 
 ## Choose The Smallest Correct Architecture
 
-- Use a V1 backend node for maximum compatibility with current installs and third-party packs.
-- Use a V3 schema node only when the user explicitly wants `comfy_api`, `ComfyExtension`, node replacement, built-in V3 UI helpers, auth-token hidden inputs, or other beta/latest-only features.
+- Use a V3 backend node by default for new work.
+- Use a V1 backend node only when the user explicitly requests V1 compatibility or when the target environment cannot yet run the needed V3 surfaces.
 - Use a frontend extension when the task is UI behavior, menus, commands, settings, docs panels, subgraphs, or client-server interaction.
 - Use a hybrid pack when the feature crosses server and client boundaries. Keep the Python node and JS extension loosely coupled unless real-time interaction is required.
 - Use registry and workflow-template work only when the deliverable is meant to be installed, published, shared, or demoed.
@@ -37,20 +38,23 @@ Read only the references needed for the task:
 - For new packs, prefer the official scaffold path (`comfy node scaffold`) or the official Comfy templates referenced in the docs instead of inventing a layout from scratch.
 - Pin a numbered `comfy_api.vX_Y_Z` import when shipping V3 code unless the user explicitly wants `comfy_api.latest`. Explain when choosing `latest`, because the docs explicitly treat it as under active development.
 - Prefer official extension hooks and documented APIs over prototype hijacking, DOM scraping, or LiteGraph internals.
+- Never generate deprecated context-menu monkey patches (`LGraphCanvas.prototype.getCanvasMenuOptions`, `nodeType.prototype.getExtraMenuOptions`) in new code.
 - Treat Nodes 2.0 as a live compatibility target for UI-affecting work. Test both Nodes 2.0 and the LiteGraph renderer when the feature touches node rendering, canvas behavior, menus, or widgets.
 - Add `pyproject.toml` metadata early for publishable work. Use semver, `project.urls.Repository`, `tool.comfy.PublisherId`, and `requires-comfyui` when compatibility needs to be explicit.
 - Add a `comfyui-frontend-package` dependency range when the pack relies on a specific frontend API level.
 - Add `example_workflows/` and matching thumbnails for user-facing nodes whenever a demo workflow materially improves usability.
 - Add `WEB_DIRECTORY/docs` markdown and `locales/` when the node has non-trivial UI, settings, or onboarding needs.
+- Generate a detailed `README.md` for publishable extensions, plus a lightweight `assets/banner.svg` (or equivalent SVG hero) for discoverability.
 - Avoid imports or logic that assume the install directory matches the GitHub repo name. Manager now normalizes the folder name from `project.name`.
 - Follow registry standards: no `eval`, no `exec`, no runtime `pip install` via subprocess, no code obfuscation.
+- For publishable work, include CI checks that block deprecated menu APIs and registry-prohibited code patterns.
 
 ## Task Playbooks
 
 ### Backend Node
 
 1. Read `references/backend-node-authoring.md`.
-2. Decide V1 versus V3 before writing code.
+2. Decide V3 versus V1 before writing code (default V3).
 3. Implement the smallest viable node shape first, then add hidden inputs, lazy evaluation, list behavior, previews, expansion, or replacements only if required.
 4. Verify tensor shapes, caching behavior, and output tuple shape.
 
@@ -70,8 +74,9 @@ Read only the references needed for the task:
 ### Publishing Or Registry Work
 
 1. Read `references/distribution-publishing.md`.
-2. Verify `pyproject.toml`, versioning, dependency model, and standards before release work.
-3. If the task includes discoverability or onboarding, also read `references/workflow-assets-and-templates.md`.
+2. Verify `pyproject.toml`, versioning, dependency model, standards, and Manager install behavior before release work.
+3. Read `references/readme-and-branding.md` and generate publish-grade repo presentation assets (`README.md`, banner SVG, workflow thumbnails).
+4. If the task includes discoverability or onboarding, also read `references/workflow-assets-and-templates.md`.
 
 ## When Official Sources Conflict
 

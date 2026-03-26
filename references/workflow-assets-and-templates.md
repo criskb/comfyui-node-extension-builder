@@ -42,3 +42,4 @@ Current structure highlights from the repo README:
 
 - Use local `example_workflows/` for node-pack onboarding.
 - Use the official `workflow_templates` repo only for broadly reusable templates or blueprints that should ship as official assets.
+- Pair workflow assets with publish-grade docs and visuals from `references/readme-and-branding.md` when preparing a public extension repo.
