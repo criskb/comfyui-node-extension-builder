@@ -45,6 +45,16 @@ requires-comfyui = ">=0.18.1"
 - Manager documentation explicitly says not to assume the directory under `custom_nodes` matches the GitHub repo name. It normalizes from `project.name`.
 - Avoid folder-name-based imports or path logic.
 
+## Extension-Manager Publish Readiness Checklist
+
+- `pyproject.toml` includes stable `project.name`, semver `project.version`, `project.urls.Repository`, and `[tool.comfy]` metadata.
+- `requirements.txt` includes every runtime Python dependency needed on first install.
+- Optional `install.py` is idempotent and safe for fresh clone/update paths.
+- Optional `node_list.json` is present only when export discovery is non-standard.
+- `example_workflows/` includes at least one runnable demo workflow and thumbnail.
+- `README.md` includes install instructions, compatibility ranges, quickstart workflow, and troubleshooting.
+- Visual assets exist (for example `assets/banner.svg`) to improve discoverability in repo/manager surfaces.
+
 ## Special-Purpose Files
 
 - `requirements.txt`: declare Python dependencies that Manager should install.
@@ -80,3 +90,4 @@ requires-comfyui = ">=0.18.1"
 - Treat `pyproject.toml` as mandatory for anything intended to be installed by other people.
 - Add compatibility ranges before release work, not after breakage reports.
 - Ship at least one `example_workflows` test case and execute it in CI.
+- Treat `README.md` + banner SVG + workflow thumbnail as default publish assets, not optional polish.
