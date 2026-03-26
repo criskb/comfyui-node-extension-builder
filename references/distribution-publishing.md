@@ -19,7 +19,7 @@ Repository = "https://github.com/owner/repo"
 [tool.comfy]
 PublisherId = "owner"
 DisplayName = "My Node Pack"
-requires-comfyui = ">=0.16.0"
+requires-comfyui = ">=0.18.1"
 ```
 
 ## Packaging Rules
@@ -31,12 +31,29 @@ requires-comfyui = ">=0.16.0"
 - Add `comfyui-frontend-package` constraints when the pack depends on a specific frontend API range.
 - Use `[tool.comfy].includes` when a built frontend artifact such as `dist/` is needed but normally ignored by git.
 
+## Latest-Compatible Versioning Strategy
+
+- Distinguish **compatibility constraints** from **development pins**.
+- Encode compatibility in `requires-comfyui` and, when needed, dependency ranges such as `comfyui-frontend-package>=x,<y`.
+- For CI and local verification, test against the newest known-good ComfyUI manifest pins in core `requirements.txt`.
+- Do not assume frontend source repo version tags are identical to the pip-distributed `comfyui-frontend-package` pin used by core installs.
+
 ## Manager And Registry Behavior
 
 - Registry powers ComfyUI-Manager discovery and installation.
 - Manager installs by cloning the repo, installing `requirements.txt` when present, and running `install.py` when present.
 - Manager documentation explicitly says not to assume the directory under `custom_nodes` matches the GitHub repo name. It normalizes from `project.name`.
 - Avoid folder-name-based imports or path logic.
+
+## Extension-Manager Publish Readiness Checklist
+
+- `pyproject.toml` includes stable `project.name`, semver `project.version`, `project.urls.Repository`, and `[tool.comfy]` metadata.
+- `requirements.txt` includes every runtime Python dependency needed on first install.
+- Optional `install.py` is idempotent and safe for fresh clone/update paths.
+- Optional `node_list.json` is present only when export discovery is non-standard.
+- `example_workflows/` includes at least one runnable demo workflow and thumbnail.
+- `README.md` includes install instructions, compatibility ranges, quickstart workflow, and troubleshooting.
+- Visual assets exist (for example `assets/banner.svg`) to improve discoverability in repo/manager surfaces.
 
 ## Special-Purpose Files
 
@@ -64,9 +81,13 @@ requires-comfyui = ">=0.16.0"
 
 - Use `Comfy-Org/comfy-action` to run workflows in CI across environments.
 - Prefer CI for regression checks before publishing new versions.
+- Add static checks that block deprecated frontend menu monkey-patching patterns.
+- Add static checks for registry-prohibited patterns (`eval`, `exec`, runtime pip-install commands).
 - Use deprecation and migration paths when replacing old nodes instead of silently breaking workflows.
 
 ## Practical Default
 
 - Treat `pyproject.toml` as mandatory for anything intended to be installed by other people.
 - Add compatibility ranges before release work, not after breakage reports.
+- Ship at least one `example_workflows` test case and execute it in CI.
+- Treat `README.md` + banner SVG + workflow thumbnail as default publish assets, not optional polish.
