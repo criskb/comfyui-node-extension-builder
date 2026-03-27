@@ -6,6 +6,7 @@
 - Put one or more `.js` files in that directory.
 - Register with `app.registerExtension`.
 - Only `.js` files are auto-loaded. Other assets must be fetched from the served extension path at runtime.
+- Do not copy extension scripts into ComfyUI core web directories.
 
 ## Minimum Shape
 
@@ -41,6 +42,7 @@ Prefer documented hooks over prototype hijacking. If there is no official API, p
 
 - Canvas menu: implement `getCanvasMenuItems(canvas)`.
 - Node menu: implement `getNodeMenuItems(node)`.
+- Topbar menu: use `commands` plus `menuCommands`.
 - Settings:
   - provide `settings: [...]`
   - use stable `id` values
@@ -49,6 +51,14 @@ Prefer documented hooks over prototype hijacking. If there is no official API, p
   - provide `commands: [...]`
   - provide `keybindings: [...]`
   - avoid core-reserved combos
+
+## Deprecated Patterns To Block In New Code
+
+- `LGraphCanvas.prototype.getCanvasMenuOptions`
+- `nodeType.prototype.getExtraMenuOptions`
+- broad prototype monkey-patching of app/canvas/node internals for behavior now covered by official hooks
+
+Treat these as migration targets. New code should use `getCanvasMenuItems`, `getNodeMenuItems`, and other documented extension surfaces.
 
 ## Client-Server Interaction
 
@@ -68,6 +78,26 @@ Prefer documented hooks over prototype hijacking. If there is no official API, p
   - locator id: UI state id
 - Use `AbortController` or equivalent cleanup for listeners on subgraph events.
 - Expect widget promotion behavior to evolve.
+
+
+## Rich Studio/Panel Node Settings Model
+
+For UI-heavy nodes, avoid hiding dozens of primitive backend widgets behind a custom panel.
+
+Preferred default:
+- keep one bundled backend widget such as `settings_json` (serialized object/string payload)
+- expose only intentional graph inputs/outputs for values that should participate in graph wiring
+- have the frontend panel read/write the bundled settings payload directly
+
+Migration and safety:
+- on load, migrate legacy `widgets_values` and old node properties into the bundled `settings_json` payload
+- use hidden-widget guard logic only as a fallback for that one bundled settings widget
+- do not recreate a large hidden widget farm after migration
+
+Why this default:
+- reduces phantom layout space and invisible mouse handles
+- avoids prompt-validation regressions from hidden widget state drift
+- improves workflow restore stability by keeping panel state in one canonical payload
 
 ## Node Docs And Localization
 
@@ -90,3 +120,4 @@ Prefer documented hooks over prototype hijacking. If there is no official API, p
 
 - Start with `beforeRegisterNodeDef`, `nodeCreated`, `setup`, settings, commands, and documented menu APIs.
 - Add custom routes, subgraph logic, or renderer-sensitive behavior only when the feature really requires it.
+- Add a CI check that fails on deprecated menu monkey-patch patterns.
