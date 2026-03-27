@@ -79,6 +79,26 @@ Treat these as migration targets. New code should use `getCanvasMenuItems`, `get
 - Use `AbortController` or equivalent cleanup for listeners on subgraph events.
 - Expect widget promotion behavior to evolve.
 
+
+## Rich Studio/Panel Node Settings Model
+
+For UI-heavy nodes, avoid hiding dozens of primitive backend widgets behind a custom panel.
+
+Preferred default:
+- keep one bundled backend widget such as `settings_json` (serialized object/string payload)
+- expose only intentional graph inputs/outputs for values that should participate in graph wiring
+- have the frontend panel read/write the bundled settings payload directly
+
+Migration and safety:
+- on load, migrate legacy `widgets_values` and old node properties into the bundled `settings_json` payload
+- use hidden-widget guard logic only as a fallback for that one bundled settings widget
+- do not recreate a large hidden widget farm after migration
+
+Why this default:
+- reduces phantom layout space and invisible mouse handles
+- avoids prompt-validation regressions from hidden widget state drift
+- improves workflow restore stability by keeping panel state in one canonical payload
+
 ## Node Docs And Localization
 
 - Rich docs:

@@ -152,6 +152,12 @@ NODE_CLASS_MAPPINGS = {"MyNode": MyNode}
 - `IS_CHANGED` maps to `fingerprint_inputs`.
 - V3 node classes should not rely on instance state. `__init__` is not the place for execution-time state.
 
+## Panel/Studio Node State Pattern
+
+- Panel/Studio nodes should prefer a single serialized settings widget (for example `settings_json`) rather than many hidden primitive widgets.
+- Keep graph inputs/outputs for intentionally exposed controls only.
+- Frontend should be the source of truth for editing this bundled payload and migrate legacy widget/property storage on load.
+
 ## Practical Default
 
 - Default to V3 for new work.
